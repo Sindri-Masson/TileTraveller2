@@ -4,6 +4,12 @@ EAST = 'e'
 SOUTH = 's'
 WEST = 'w'
 
+# Coin counter
+coin_counter = 0
+
+# Has a lever been pulled on this tile? T/F
+done = False
+
 def move(direction, col, row):
     ''' Returns updated col, row given the direction '''
     if direction == NORTH:
@@ -59,17 +65,46 @@ def find_directions(col, row):
 
 def play_one_move(col, row, valid_directions):
     ''' Plays one move of the game
-        Return if victory has been obtained and updated col,row '''
+        Return if victory has been obtained and updated col,row 
+        Also return if tile has been checked for a lever'''
     victory = False
     direction = input("Direction: ")
     direction = direction.lower()
     
     if not direction in valid_directions:
         print("Not a valid direction!")
+        done = True
     else:
         col, row = move(direction, col, row)
         victory = is_victory(col, row)
-    return victory, col, row
+        done = False
+    return victory, col, row, done
+
+def find_lever(col, row):
+    ''' Returns True or False if there is a lever given the supplied location '''
+    lever = False
+    if col == 1 and row == 2: # (1,2)
+        lever = True
+    elif col == 2 and row == 2: # (2,2)
+        lever = True
+    elif col == 2 and row == 3: # (2,3)
+        lever = True
+    elif col == 3 and row == 2: # (3,2)
+        lever = True
+    return lever
+
+def pull_lever(lever, counter):
+    ''' If there is a lever on the tile it asks if you want to open it and if you open it you get a coin
+    returns the value of the coin counter '''
+    if lever:
+        pull = input('Pull a lever (y/n): ')
+        pull.lower()
+        if pull == 'y':
+            counter += 1
+            print('You received 1 coin, your total is now {}.'.format(counter))
+    return counter
+
+
 
 # The main program starts here
 victory = False
@@ -77,7 +112,10 @@ row = 1
 col = 1
 
 while not victory:
+    if done == False:
+        lever = find_lever(col, row)
+        coin_counter = pull_lever(lever, coin_counter)
     valid_directions = find_directions(col, row)
     print_directions(valid_directions)
-    victory, col, row = play_one_move(col, row, valid_directions)
-print("Victory!")
+    victory, col, row, done = play_one_move(col, row, valid_directions)
+print("Victory! Total coins {}.".format(coin_counter))
