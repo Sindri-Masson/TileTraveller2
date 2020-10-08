@@ -4,11 +4,8 @@ EAST = 'e'
 SOUTH = 's'
 WEST = 'w'
 
-# Coin counter
-coin_counter = 0
 
-# Has a lever been pulled on this tile? T/F
-duplicate_lever_pull = False
+
 
 def move(direction, col, row):
     ''' Returns updated col, row given the direction '''
@@ -105,17 +102,28 @@ def pull_lever(lever, counter):
     return counter
 
 
+def play(victory, row, col, coin_counter, duplicate_lever_pull):
+    while not victory:
+        if duplicate_lever_pull == False:
+            lever = find_lever(col, row)
+            coin_counter = pull_lever(lever, coin_counter)
+        valid_directions = find_directions(col, row)
+        print_directions(valid_directions)
+        victory, col, row, duplicate_lever_pull = play_one_move(col, row, valid_directions)
+    print("Victory! Total coins {}.".format(coin_counter))
+    play_again = input("Play again (y/n): ")
+    play_again.lower()
+    return play_again
+
 
 # The main program starts here
-victory = False
-row = 1
-col = 1
 
-while not victory:
-    if duplicate_lever_pull == False:
-        lever = find_lever(col, row)
-        coin_counter = pull_lever(lever, coin_counter)
-    valid_directions = find_directions(col, row)
-    print_directions(valid_directions)
-    victory, col, row, duplicate_lever_pull = play_one_move(col, row, valid_directions)
-print("Victory! Total coins {}.".format(coin_counter))
+play_again = 'y'
+
+while play_again == 'y':
+    victory = False
+    row = 1
+    col = 1
+    coin_counter = 0
+    duplicate_lever_pull = False
+    play_again = play(victory, row, col, coin_counter, duplicate_lever_pull)
