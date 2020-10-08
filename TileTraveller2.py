@@ -8,7 +8,7 @@ WEST = 'w'
 coin_counter = 0
 
 # Has a lever been pulled on this tile? T/F
-done = False
+duplicate_lever_pull = False
 
 def move(direction, col, row):
     ''' Returns updated col, row given the direction '''
@@ -73,12 +73,12 @@ def play_one_move(col, row, valid_directions):
     
     if not direction in valid_directions:
         print("Not a valid direction!")
-        done = True
+        duplicate_lever_pull = True
     else:
         col, row = move(direction, col, row)
         victory = is_victory(col, row)
-        done = False
-    return victory, col, row, done
+        duplicate_lever_pull = False
+    return victory, col, row, duplicate_lever_pull
 
 def find_lever(col, row):
     ''' Returns True or False if there is a lever given the supplied location '''
@@ -112,10 +112,10 @@ row = 1
 col = 1
 
 while not victory:
-    if done == False:
+    if duplicate_lever_pull == False:
         lever = find_lever(col, row)
         coin_counter = pull_lever(lever, coin_counter)
     valid_directions = find_directions(col, row)
     print_directions(valid_directions)
-    victory, col, row, done = play_one_move(col, row, valid_directions)
+    victory, col, row, duplicate_lever_pull = play_one_move(col, row, valid_directions)
 print("Victory! Total coins {}.".format(coin_counter))
