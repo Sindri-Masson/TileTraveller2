@@ -68,7 +68,7 @@ def find_directions(col, row):
         valid_directions = SOUTH+WEST
     return valid_directions
 
-def play_one_move(col, row, valid_directions, coin_counter, lever, move_counter):
+def play_one_move(col, row, valid_directions, move_counter):
     ''' Plays one move of the game
         Return if victory has been obtained and updated col,row 
         Also return if tile has been checked for a lever'''
@@ -79,11 +79,12 @@ def play_one_move(col, row, valid_directions, coin_counter, lever, move_counter)
     
     if not direction in valid_directions:
         print("Not a valid direction!")
+        duplicate_lever_pull = True
     else:
         col, row = move(direction, col, row)
         victory = is_victory(col, row)
-        coin_counter = pull_lever(lever, coin_counter)
-    return victory, col, row, coin_counter, move_counter
+        duplicate_lever_pull = False
+    return victory, col, row, move_counter, duplicate_lever_pull
 
 def find_lever(col, row, LEVER_LOCATIONS):
     ''' Returns True or False if there is a lever given the supplied location '''
@@ -92,25 +93,27 @@ def find_lever(col, row, LEVER_LOCATIONS):
         lever = True
     return lever
 
-def pull_lever(lever, counter):
+def pull_lever(lever, counter, duplicate_lever_pull):
     ''' If there is a lever on the tile it asks if you want to open it and if you open it you get a coin
     returns the value of the coin counter '''
-    if lever:
-        pull = random.choice(yesno_list)
-        print('Pull a lever (y/n): {}'.format(pull))
-        if pull == YES:
-            counter += 1
-            print('You received 1 coin, your total is now {}.'.format(counter))
+    if not duplicate_lever_pull:
+        if lever:
+            pull = random.choice(yesno_list)
+            print('Pull a lever (y/n): {}'.format(pull))
+            if pull == YES:
+                counter += 1
+                print('You received 1 coin, your total is now {}.'.format(counter))
     return counter
 
-def play(victory, row, col, coin_counter, move_counter, LEVER_LOCATIONS):
+def play(victory, row, col, coin_counter, move_counter, LEVER_LOCATIONS, duplicate_lever_pull):
     seed = int(input('Input seed: '))
     random.seed(seed)
     while not victory:
         lever = find_lever(col, row, LEVER_LOCATIONS)
+        coin_counter = pull_lever(lever, coin_counter, duplicate_lever_pull)
         valid_directions = find_directions(col, row)
         print_directions(valid_directions)
-        victory, col, row, coin_counter, move_counter = play_one_move(col, row, valid_directions, coin_counter, lever, move_counter)
+        victory, col, row, move_counter, duplicate_lever_pull = play_one_move(col, row, valid_directions, move_counter)
     print("Victory! Total coins {}. Moves {}.".format(coin_counter, move_counter))
     play_again = input("Play again (y/n): ")
     play_again.lower()
@@ -122,8 +125,9 @@ play_again = YES
 
 while play_again == YES:
     victory = False
+    duplicate_lever_pull = False
     row = 1
     col = 1
     coin_counter = 0
     move_counter = 0
-    play_again = play(victory, row, col, coin_counter, move_counter, LEVER_LOCATIONS)
+    play_again = play(victory, row, col, coin_counter, move_counter, LEVER_LOCATIONS, duplicate_lever_pull)
